@@ -2,6 +2,7 @@ const { Router } = require('express');
 const routes = Router();
 const SlackBot = require('slackbots');
 const api = require('./services/api')
+const { format, parseISO } = require('date-fns');
 
 const bot = new SlackBot({
   token: process.env.SLACK_TOKEN,
@@ -10,15 +11,10 @@ const bot = new SlackBot({
 
 // Start Handler
 bot.on('start', () => {
-  const params = {
-    icon_emoji: ':smiley:'
-  };
 
   bot.postMessageToChannel(
     'geral',
-    'ONNN',
-    params
-  );
+    'ON' );
 });
 
 bot.on('error', err => console.log(err));
@@ -49,17 +45,22 @@ function handleTicket(message) {
 
   api.get(`/tickets/${ticketNumber}.json`).then(response => {
     const ticket = response.data.ticket;
-    console.log(ticket);
-    let agentNames = ['luma', 'lucas', 'douglas', 'aureane'];
-    let status;
+    // console.log(ticket);
+
+    let agentNames = ['luma', 'lucas', 'douglas', 'aureane', 'uber', 'alexandre', 'gabriel', 'fernanda', 'drianne', 'giovanna'];
+    let agentName = [];
 
     for(agent of agentNames){
       if (ticket.tags.includes(agent)) {
-        agentName = agent;
-      }else{
-        agentName = 'Ticket sem agente responsável.'
+        agentName.push(agent);
       }
     }
+
+    if(!agentName) {
+      agentName = 'Ticket sem agente responsável';
+    }
+
+    let status;
 
     if (ticket.status == 'open') {
       status = 'Em aberto'
@@ -74,13 +75,17 @@ function handleTicket(message) {
     } else if (ticket.status == 'closed') {
       status = 'Fechado'
     }
+
+    let created_at = format(parseISO(ticket.updated_at), 'dd/MM/yyyy');
+    let updated_at = format(parseISO(ticket.updated_at), 'dd/MM/yyyy');
+    
     const ticketsInfo = {
       "ticket": ticketNumber,
       "agent": agentName,
       "status": status,
       "priority": ticket.priority,
-      "created_at": ticket.created_at,
-      "updated_at": ticket.updated_at,
+      "created_at": created_at,
+      "updated_at": updated_at,
       "due_at": ticket.due_at
     }
 
