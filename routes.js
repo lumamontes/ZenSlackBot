@@ -14,7 +14,7 @@ bot.on('start', () => {
 
   bot.postMessageToChannel(
     'geral',
-    'ON' );
+    'ON');
 });
 
 bot.on('error', err => console.log(err));
@@ -50,13 +50,13 @@ function handleTicket(message) {
     let agentNames = ['luma', 'lucas', 'douglas', 'aureane', 'uber', 'alexandre', 'gabriel', 'fernanda', 'drianne', 'giovanna'];
     let agentName = [];
 
-    for(agent of agentNames){
+    for (agent of agentNames) {
       if (ticket.tags.includes(agent)) {
         agentName.push(agent);
       }
     }
 
-    if(!agentName) {
+    if (!agentName) {
       agentName = 'Ticket sem agente responsável';
     }
 
@@ -76,14 +76,27 @@ function handleTicket(message) {
       status = 'Fechado'
     }
 
-    let created_at = format(parseISO(ticket.updated_at), 'dd/MM/yyyy');
+    let priority;
+
+    if (ticket.priority == 'low') {
+      priority = 'Baixa'
+    } else if (ticket.priority == 'normal') {
+      priority = 'Normal'
+    } else if (ticket.priority == 'high') {
+      priority = 'Alta'
+    } else if (ticket.priority == 'urgent') {
+      priority = 'Urgente'
+    }
+
+    let created_at = format(parseISO(ticket.created_at), 'dd/MM/yyyy');
     let updated_at = format(parseISO(ticket.updated_at), 'dd/MM/yyyy');
-    
+    // organization_id	
+    // requester_id	
     const ticketsInfo = {
       "ticket": ticketNumber,
       "agent": agentName,
       "status": status,
-      "priority": ticket.priority,
+      "priority": priority,
       "created_at": created_at,
       "updated_at": updated_at,
       "due_at": ticket.due_at
