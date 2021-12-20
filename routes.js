@@ -6,14 +6,14 @@ const { format, parseISO } = require('date-fns');
 
 const bot = new SlackBot({
   token: process.env.SLACK_TOKEN,
-  name: process.env.SLACK_BOT_NAME
+  name: process.env.SLACK_CHANNEL
 });
 
 // Start Handler
 bot.on('start', () => {
 
   // bot.postMessageToChannel(
-  //   'geral',
+  //   process.env.SLACK_CHANNEL,
   //   'ON');
 });
 
@@ -104,7 +104,7 @@ function handleTicket(message) {
       icon_emoji: ':robot_face'
     };
   
-    bot.postMessageToChannel('geral',
+    bot.postMessageToChannel(process.env.SLACK_CHANNEL,
     `Ticket : ${ticketsInfo.ticket},
     Agente Responsável: ${ticketsInfo.agent},
     Prioridade: ${ticketsInfo.priority},
@@ -120,7 +120,7 @@ function handleTicket(message) {
       icon_emoji: ':robot_face'
     };
 
-    bot.postMessageToChannel('geral',
+    bot.postMessageToChannel(process.env.SLACK_CHANNEL,
     `Não foi possível localizar o ticket! Tente novamente.`,
     params);
   });
@@ -133,7 +133,7 @@ function runHelp() {
   };
 
   bot.postMessageToChannel(
-    'geral',
+    process.env.SLACK_CHANNEL,
     `Hellou! Digite @ZenBotJunior com o número do ticket para saber o status da solicitação :)`,
     params
   );
@@ -141,7 +141,7 @@ function runHelp() {
 
 function handleDefault() {
   bot.postMessageToChannel(
-    'geral',
+    process.env.SLACK_CHANNEL,
     `Oi! Foi mal, no momento consigo apenas buscar um ticket válido. Por favor, digite "@ZenBot #numero_do_ticket"`
   );
 }
