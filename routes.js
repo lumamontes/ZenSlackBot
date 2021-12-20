@@ -12,9 +12,9 @@ const bot = new SlackBot({
 // Start Handler
 bot.on('start', () => {
 
-  bot.postMessageToChannel(
-    'geral',
-    'ON');
+  // bot.postMessageToChannel(
+  //   'geral',
+  //   'ON');
 });
 
 bot.on('error', err => console.log(err));
@@ -28,7 +28,7 @@ bot.on('message', data => {
 });
 
 
-function handleMessage(message) {
+function handleMessage(message, ts, channel) {
   if (message.length > 0) {
     if (message.includes('ticket #')) {
       handleTicket(message);
@@ -45,11 +45,10 @@ function handleTicket(message) {
 
   api.get(`/tickets/${ticketNumber}.json`).then(response => {
     const ticket = response.data.ticket;
-    // console.log(ticket);
 
     let agentNames = ['luma', 'lucas', 'douglas', 'aureane', 'uber', 'alexandre', 'gabriel', 'fernanda', 'drianne', 'giovanna'];
     let agentName = [];
-
+  
     for (agent of agentNames) {
       if (ticket.tags.includes(agent)) {
         agentName.push(agent);
@@ -59,7 +58,7 @@ function handleTicket(message) {
     if (!agentName) {
       agentName = 'Ticket sem agente responsável';
     }
-
+  
     let status;
 
     if (ticket.status == 'open') {
@@ -87,11 +86,10 @@ function handleTicket(message) {
     } else if (ticket.priority == 'urgent') {
       priority = 'Urgente'
     }
-
+  
     let created_at = format(parseISO(ticket.created_at), 'dd/MM/yyyy');
     let updated_at = format(parseISO(ticket.updated_at), 'dd/MM/yyyy');
-    // organization_id	
-    // requester_id	
+    
     const ticketsInfo = {
       "ticket": ticketNumber,
       "agent": agentName,
@@ -101,13 +99,13 @@ function handleTicket(message) {
       "updated_at": updated_at,
       "due_at": ticket.due_at
     }
-
+  
     const params = {
       icon_emoji: ':robot_face'
     };
-
+  
     bot.postMessageToChannel('geral',
-      `Ticket : ${ticketsInfo.ticket},
+    `Ticket : ${ticketsInfo.ticket},
     Agente Responsável: ${ticketsInfo.agent},
     Prioridade: ${ticketsInfo.priority},
     Status da solicitação: ${ticketsInfo.status},
@@ -116,8 +114,16 @@ function handleTicket(message) {
     Prazo de resolução: ${ticketsInfo.due_at ? ticketsInfo.due_at : 'Não definido'}
     `,
       params);
-  });
 
+  }).catch((error) => {
+    const params = {
+      icon_emoji: ':robot_face'
+    };
+
+    bot.postMessageToChannel('geral',
+    `Não foi possível localizar o ticket! Tente novamente.`,
+    params);
+  });
 }
 
 // Show Help Text
